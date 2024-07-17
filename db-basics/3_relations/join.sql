@@ -75,3 +75,107 @@ FROM student LEFT JOIN instructor
 SELECT *
 FROM instructor LEFT JOIN student
     ON student.advisor_id = instructor.id;
+
+
+
+
+
+
+-- INNER JOIN -> JOIN
+SELECT *
+FROM student JOIN instructor
+    ON student.advisor_id = instructor.id
+ORDER BY student.id;
+
+-- LEFT OUTER JOIN -> LEFT JOIN
+SELECT *
+FROM student LEFT JOIN instructor
+    ON student.advisor_id = instructor.id;
+
+SELECT *
+FROM instructor LEFT JOIN student
+    ON student.advisor_id = instructor.id;
+
+
+
+-- M:N JOIN
+SELECT *
+FROM (student INNER JOIN enrolling_lectures
+    ON student.id = enrolling_lectures.student_id)
+        INNER JOIN lecture
+            ON enrolling_lectures.lecture_id = lecture.id
+ORDER BY student.id;
+
+
+SELECT first_name, last_name, lecture.id, name, day
+FROM student LEFT OUTER JOIN enrolling_lectures
+    ON student.id = enrolling_lectures.student_id
+        LEFT OUTER JOIN lecture
+            ON enrolling_lectures.lecture_id = lecture.id
+ORDER BY student.id;
+
+
+-- 여기에 다시 JOIN을 추가하면?
+SELECT student.first_name, student.last_name, lecture.id, name, day, instructor.first_name
+FROM student LEFT OUTER JOIN enrolling_lectures
+    ON student.id = enrolling_lectures.student_id
+        LEFT OUTER JOIN lecture
+            ON enrolling_lectures.lecture_id = lecture.id
+                LEFT OUTER JOIN instructor
+                    ON lecture.instructor_id = instructor.id
+ORDER BY student.id;
+
+
+-- alias
+SELECT s.id, s.first_name, s.last_name, l.name, l.day
+FROM student s 
+    LEFT JOIN enrolling_lectures el ON s.id = el.student_id
+    LEFT JOIN lecture l ON el.lecture_id = l.id
+ORDER BY s.id;
+
+-- 각 학생 별 듣고있는 강의 수
+SELECT s.id, s.first_name, s.last_name, COUNT(*)
+FROM student s 
+    LEFT JOIN enrolling_lectures el ON s.id = el.student_id
+    LEFT JOIN lecture l ON el.lecture_id = l.id
+GROUP BY s.id
+ORDER BY s.id;
+
+
+-- 각 강의 당 듣고있는 학생 수
+SELECT l.id, l.name, COUNT(*)
+FROM lecture l LEFT JOIN enrolling_lectures e
+    ON l.id= e.lecture_id
+    LEFT JOIN student s
+    ON s.id= e.student_id
+GROUP BY l.id
+ORDER BY l.id;
+
+
+SELECT l.id, l.name, COUNT(*)
+FROM lecture l LEFT JOIN enrolling_lectures e
+    ON l.id = e.lecture_id
+GROUP BY l.id
+ORDER BY l.id;
+
+
+-- 2번 강의를 듣는 학생들의 ID를 가져오고 싶다.
+SELECT student_id
+FROM enrolling_lectures
+WHERE lecture_id = 2;
+
+-- 2번 강의를 듣고있는 학생들의 이름을 가져오고 싶다.
+SELECT first_name, last_name
+FROM student s
+    INNER JOIN enrolling_lectures e
+        ON s.id = e.student_id
+WHERE lecture_id = 2;
+
+
+SELECT first_name, last_name
+FROM student
+WHERE id IN (
+    SELECT student_id
+    FROM enrolling_lectures
+    WHERE lecture_id = 2
+);
